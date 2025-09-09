@@ -62,7 +62,7 @@ npm run preview   # serve build em http://localhost:4173
 
 🔹 2. Com Docker (execução em container)
 
-Necessário para cumprir o requisito do projeto prático de empacotamento em container.
+
 
 # build da imagem
 docker build -t frontdesaparecidos:prod .
@@ -72,7 +72,6 @@ docker run --rm -p 8080:80 frontdesaparecidos:prod
 
 
 O Dockerfile usa multi-stage build → instala dependências, gera o build com Vite e serve com Nginx.
-Não é obrigatório usar Docker para rodar localmente, mas ele precisa estar incluído e funcionando na entrega.
 
 
 
