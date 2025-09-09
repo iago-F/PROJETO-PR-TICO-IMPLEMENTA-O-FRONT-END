@@ -1,3 +1,7 @@
+IAGO FERREIRA DIAS 
+iagoferreira278@gmail.com 
+65998179749
+
 # FrontDesaparecidos
 
 SPA em React + Vite para consulta e registro de informações sobre pessoas desaparecidas, consumindo a API pública `abitus-api.geia.vip`.
