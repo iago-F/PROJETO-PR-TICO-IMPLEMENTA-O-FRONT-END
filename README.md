@@ -1,69 +1,157 @@
-# React + TypeScript + Vite
+# FrontDesaparecidos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA em React + Vite para consulta e registro de informações sobre pessoas desaparecidas, consumindo a API pública `abitus-api.geia.vip`.
 
-Currently, two official plugins are available:
+##  Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 18** + **Vite**
+- **React Router** (navegação)
+- **@tanstack/react-query** (fetch/cache)
+- **Axios** (requisições HTTP)
+- **Tailwind v4** (+ `@tailwindcss/vite`)
+- **React Hook Form**
+- **Zod** (validações opcionais)
+- **Docker** (build de produção com Nginx; opção dev com hot-reload)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+##  Requisitos
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node **>= 18** (recomendado **20**)
+- NPM **>= 9**
+- (Opcional) Docker Desktop (Windows/macOS) ou Docker Engine (Linux)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+##  Instalação
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+```bash
+# na raiz do projeto
+npm ci
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+
+ Variáveis de ambiente
+
+O Vite injeta variáveis que começam com VITE_ no build.
+
+Crie .env.production (para build e Docker):
+
+VITE_API_BASE_URL=https://abitus-api.geia.vip
+
+
+
+▶️ Execução
+
+Você pode rodar o projeto de duas formas:
+
+🔹 1. Sem Docker (direto com Node/NPM)
+# instalar dependências
+npm ci
+
+# rodar em modo dev (http://localhost:5173)
+npm run dev
+
+# ou gerar build de produção
+npm run build
+npm run preview   # serve build em http://localhost:4173
+
+🔹 2. Com Docker (execução em container)
+
+Necessário para cumprir o requisito do projeto prático de empacotamento em container.
+
+# build da imagem
+docker build -t frontdesaparecidos:prod .
+
+# rodar o container (http://localhost:8080)
+docker run --rm -p 8080:80 frontdesaparecidos:prod
+
+
+O Dockerfile usa multi-stage build → instala dependências, gera o build com Vite e serve com Nginx.
+Não é obrigatório usar Docker para rodar localmente, mas ele precisa estar incluído e funcionando na entrega.
+
+
+
+ Estrutura resumida
+src/
+  App.tsx
+  main.tsx
+  index.css
+  shared/
+    lib/
+      axios.ts
+      queryClient.ts
+    ui/
+      Modal.tsx
+  features/
+    pessoas-list/
+      ListPage.tsx
+      CardPessoa.tsx
+      SearchBar.tsx
+    pessoa-details/
+      DetailsPage.tsx
+      InfoForm.tsx
+  services/
+    pessoa/
+      api.ts
+    ocorrencias/
+      api.ts
+
+
+
+ Funcionalidades
+
+Tela inicial
+
+Lista de desaparecidos com paginação (≥10 por página).
+
+Cards com foto, nome, idade, status (vermelho/verde).
+
+Campo de busca/filtro por nome, sexo, faixa etária.
+
+Tela de detalhes
+
+Foto, status, idade, sexo, data “desde”, local.
+
+Botão Registrar informação.
+
+Formulário modal com:
+
+máscaras para telefone e data (dd/mm/aaaa)
+
+geolocalização (preenche lat/lng)
+
+upload de fotos com preview
+
+envio em multipart/form-data para POST /v1/ocorrencias/informacoes-desaparecido
+
+data enviada no formato yyyy-MM-dd (compatível com LocalDate no backend)
+
+
+
+
+   Testes
+Testes manuais
+
+Acesse a home → veja GET /v1/pessoas/aberto/filtro no DevTools.
+
+Abra uma pessoa → clique em Registrar informação → envie:
+
+ver POST /v1/ocorrencias/informacoes-desaparecido no DevTools → Payload contém informacao, data (yyyy-MM-dd), ocoId, e anexos (quando houver).
+
+Status 201 → sucesso.
+
+
+
+
+ Troubleshooting
+
+Página em branco ao dar refresh em rotas
+→ o nginx.conf já inclui try_files $uri /index.html; (SPA fallback).
+
+Erro 500 no envio de informação
+→ use data no formato yyyy-MM-dd (já tratado no form).
+
+Anexo aparece null no preview da resposta
+→ normal: alguns backends não retornam metadados do arquivo no POST.
+→ verifique em DevTools → Payload → Form Data (o arquivo deve aparecer como (binary)).
