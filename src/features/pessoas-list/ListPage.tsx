@@ -20,14 +20,14 @@ import SearchBar from './SearchBar'
 
 export default function ListPage() {
     const [sp, setSp] = useSearchParams()
-    const page = Number(sp.get('page') || 1) // UI 1-based
+    const page = Number(sp.get('page') || 1)
     const size = 10
     const nome = sp.get('nome') || undefined
     const sexo = sp.get('sexo') || undefined
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['pessoas', { page, size, nome, sexo }],
-        queryFn: () => getPessoasFiltro({ page: page - 1, size, nome, sexo }), // API 0-based
+        queryFn: () => getPessoasFiltro({ page: page - 1, size, nome, sexo }),
     })
 
     const items = data?.content ?? []
@@ -47,46 +47,63 @@ export default function ListPage() {
         setSp(next)
     }
 
+
+
     return (
-        <div className="max-w-7xl mx-auto p-4 space-y-4">
-            <div className="flex items-end justify-between gap-3">
-                <h1 className="text-xl sm:text-2xl font-bold">Pessoas desaparecidas</h1>
-                {/* opcional: total */}
-                {typeof total === "number" && <span className="text-sm text-gray-500">{total} resultado(s)</span>}
-            </div>
-
-            <SearchBar initial={{ nome, sexo }} onSubmit={onSubmit} />
-
-            {isLoading && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                    {Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)}
+        <div className="min-h-screen bg-gray-100">
+            <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-5">
+                { }
+                <div className="flex items-end justify-between gap-3">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700">
+                            Pessoas desaparecidas
+                        </h1>
+                        <p className="text-sm text-gray-600">Busque por nome, sexo e faixa etária.</p>
+                    </div>
+                    {typeof total === "number" && (
+                        <span className="inline-flex items-center gap-2 text-xs px-2.5 py-1 rounded-full bg-white/70 backdrop-blur border text-gray-700">
+                            <span className="size-1.5 rounded-full bg-indigo-500" />
+                            {total} resultado(s)
+                        </span>
+                    )}
                 </div>
-            )}
 
-            {isError && (
-                <div className="text-red-700">
-                    Erro ao carregar. <button className="underline" onClick={() => refetch()}>Tentar novamente</button>
+                <div className="bg-white/80 backdrop-blur rounded-2xl border shadow-sm p-3 sm:p-4">
+                    <SearchBar initial={{ nome, sexo }} onSubmit={onSubmit} />
                 </div>
-            )}
 
-            {!isLoading && !isError && items.length === 0 && (
-                <p className="text-gray-500">Nenhum registro encontrado.</p>
-            )}
-
-            {!!items.length && (
-                <>
-                    {/* grid mais compacto (cards menores) */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {isLoading && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                         {items.map((p) => <CardPessoa key={String(p.id)} p={p} />)}
                     </div>
+                )}
 
-                    <div className="pt-2">
-                        <Pagination page={page} pageSize={size} total={total} onChange={onChangePage} />
+                {isError && (
+                    <div className="text-red-700">
+                        Erro ao carregar. <button className="underline" onClick={() => refetch()}>Tentar novamente</button>
                     </div>
-                </>
-            )}
+                )}
+
+                {!isLoading && !isError && items.length === 0 && (
+                    <p className="text-gray-600 bg-white/70 backdrop-blur border rounded-2xl p-4">Nenhum registro encontrado.</p>
+                )}
+
+                {!!items.length && (
+                    <>
+                        { }
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                            {items.map((p) => <CardPessoa key={String(p.id)} p={p} />)}
+                        </div>
+
+                        <div className="pt-2">
+                            <Pagination page={page} pageSize={size} total={total} onChange={onChangePage} />
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
-    );
+    )
+
 }
 // ...imports (iguais)
 function SkeletonCard() {

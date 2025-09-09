@@ -17,6 +17,16 @@ export interface PessoaDTO {
 export interface PagePessoaDTO {
     content?: PessoaDTO[];
     totalElements?: number;
-    number?: number; // 0-based
+    number?: number;
     size?: number;
+}
+
+export interface NovaInfoPayload {
+    informacao: string
+    data: string
+    ocoId: string
+    telefone?: string
+    latitude?: number
+    longitude?: number
+    anexos?: File[]
 }
